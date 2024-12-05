@@ -4,13 +4,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoginInput } from './dto/login.input';
 import * as bcrypt from 'bcrypt';
 import { CONFIG_MESSAGES } from 'src/config/config';
 import { ConfigService } from '@nestjs/config';
 import * as jose from 'jose';
 import { createHash } from 'crypto';
-import { RegisterInput } from './dto/register.input';
+import { loginUserInput, registerUserInput } from './inputs/auth.inputs';
 
 @Injectable()
 export class AuthService {
@@ -66,11 +65,11 @@ export class AuthService {
     return result;
   }
 
-  async login(loginInput: LoginInput) {
+  async login(loginUserInput: loginUserInput) {
     try {
       const user = await this.validateUser(
-        loginInput.email,
-        loginInput.password,
+        loginUserInput.email,
+        loginUserInput.password,
       );
 
       return {
@@ -83,22 +82,22 @@ export class AuthService {
     }
   }
 
-  async register(registerInput: RegisterInput) {
+  async register(registerUserInput: registerUserInput) {
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: registerInput.email },
+      where: { email: registerUserInput.email },
     });
 
     if (existingUser && existingUser.verified) {
       throw new UnauthorizedException(CONFIG_MESSAGES.userAllReady);
     }
 
-    const hashedPassword = await bcrypt.hash(registerInput.password, 10);
+    const hashedPassword = await bcrypt.hash(registerUserInput.password, 10);
 
     if (existingUser && !existingUser.verified) {
       const updatedUser = await this.prisma.user.update({
-        where: { email: registerInput.email },
+        where: { email: registerUserInput.email },
         data: {
-          ...registerInput,
+          ...registerUserInput,
           password: hashedPassword,
           verified: false,
         },
@@ -117,7 +116,7 @@ export class AuthService {
 
     const newUser = await this.prisma.user.create({
       data: {
-        ...registerInput,
+        ...registerUserInput,
         password: hashedPassword,
         verified: false,
       },
@@ -134,11 +133,11 @@ export class AuthService {
     };
   }
 
-  async verifyUser(token: string) {
+  async verifyUser(verifyToken: string) {
     try {
       const secret = this.configService.get('JWT_SECRET_KEY');
       const key = createHash('sha256').update(secret).digest();
-      const { payload } = await jose.jwtDecrypt(token, key);
+      const { payload } = await jose.jwtDecrypt(verifyToken, key);
 
       const user = await this.prisma.user.update({
         where: { id: Number(payload.sub) },
@@ -155,11 +154,11 @@ export class AuthService {
     }
   }
 
-  async refreshToken(token: string) {
+  async refreshToken(refreshToken: string) {
     try {
       const secret = this.configService.get('REFRESH_SECRET_KEY');
       const key = createHash('sha256').update(secret).digest();
-      const { payload } = await jose.jwtDecrypt(token, key);
+      const { payload } = await jose.jwtDecrypt(refreshToken, key);
 
       const user = await this.prisma.user.findUnique({
         where: { id: Number(payload.sub) },
@@ -178,7 +177,7 @@ export class AuthService {
     }
   }
 
-  async resetPasswordSent(email: string) {
+  async resetPwdSent(email: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -200,11 +199,11 @@ export class AuthService {
     };
   }
 
-  async resetPasswordConfirm(token: string, newPassword: string) {
+  async resetPwdConf(resetToken: string, newPassword: string) {
     try {
       const secret = this.configService.get('JWT_SECRET_KEY');
       const key = createHash('sha256').update(secret).digest();
-      const { payload } = await jose.jwtDecrypt(token, key);
+      const { payload } = await jose.jwtDecrypt(resetToken, key);
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 

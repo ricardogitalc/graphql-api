@@ -30,6 +30,12 @@ type RegisterResponse {
   verificationToken: String!
 }
 
+type RefreshResponse {
+  message: String!
+  accessToken: String!
+  refreshToken: String!
+}
+
 type ResetResponse {
   message: String!
   resetToken: String!
@@ -43,12 +49,12 @@ type Query {
 type Mutation {
   updateUserById(updateUserInput: UpdateUserInput!): User!
   deleteUserById(id: Int!): User!
-  loginUser(loginInput: LoginInput!): LoginResponse!
-  registerUser(registerInput: RegisterInput!): RegisterResponse!
-  verifyUser(token: String!): LoginResponse!
-  refreshToken(refreshTokenInput: RefreshTokenInput!): LoginResponse!
-  resetPasswordSent(requestResetInput: RequestResetInput!): ResetResponse!
-  resetPasswordConfirm(resetPasswordInput: ResetPasswordInput!): LoginResponse!
+  loginUser(loginUserInput: loginUserInput!): LoginResponse!
+  registerUser(registerUserInput: registerUserInput!): RegisterResponse!
+  verifyUser(verificationToken: String!): LoginResponse!
+  refreshToken(refreshToken: refreshTokenInput!): RefreshResponse!
+  resetPwdSent(resetPwdSentInput: resetPwdSentInput!): ResetResponse!
+  resetPwdConf(resetPwdConfInput: resetPwdConfInput!): LoginResponse!
 }
 
 input UpdateUserInput {
@@ -59,12 +65,12 @@ input UpdateUserInput {
   whatsapp: String
 }
 
-input LoginInput {
+input loginUserInput {
   email: String!
   password: String!
 }
 
-input RegisterInput {
+input registerUserInput {
   firstName: String!
   lastName: String!
   email: String!
@@ -72,15 +78,15 @@ input RegisterInput {
   whatsapp: String!
 }
 
-input RefreshTokenInput {
+input refreshTokenInput {
   refreshToken: String!
 }
 
-input RequestResetInput {
+input resetPwdSentInput {
   email: String!
 }
 
-input ResetPasswordInput {
-  token: String!
+input resetPwdConfInput {
+  resetToken: String!
   newPassword: String!
 }

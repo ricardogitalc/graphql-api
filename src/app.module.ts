@@ -26,7 +26,6 @@ import { ErrorInterceptor } from './common/interceptors/error.interceptor';
           code: error.extensions?.code || 'INTERNAL_SERVER_ERROR',
           path: error.path,
           timestamp: new Date().toISOString(),
-          details: originalError?.message || error.message,
         };
       },
     }),

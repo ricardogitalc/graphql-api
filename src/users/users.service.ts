@@ -1,9 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { CONFIG_MESSAGES } from 'src/config/config';
+import { CreateUserInput, UpdateUserInput } from './inputs/user.inputs';
 
 @Injectable()
 export class UsersService {

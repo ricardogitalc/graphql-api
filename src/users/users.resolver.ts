@@ -1,10 +1,10 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
-import { UpdateUserInput } from './dto/update-user.input';
 import * as bcrypt from 'bcrypt';
 import { UseGuards, ValidationPipe } from '@nestjs/common';
 import { AdminGuard } from 'src/auth/guards/admin-auth.guard';
+import { UpdateUserInput } from './inputs/user.inputs';
 
 @Resolver(() => User)
 export class UsersResolver {
