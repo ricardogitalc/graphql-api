@@ -32,7 +32,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(CONFIG_MESSAGES.userNotFound);
+      throw new NotFoundException(CONFIG_MESSAGES.userIdNotFound);
     }
 
     return user;
@@ -44,7 +44,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(CONFIG_MESSAGES.userNotFound);
+      throw new NotFoundException(CONFIG_MESSAGES.userIdNotFound);
     }
 
     return this.prisma.user.update({
@@ -59,7 +59,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(CONFIG_MESSAGES.userNotFound);
+      throw new NotFoundException(CONFIG_MESSAGES.userIdNotFound);
     }
 
     return this.prisma.user.delete({

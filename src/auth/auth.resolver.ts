@@ -5,6 +5,11 @@ import { LoginResponse } from './entities/login-response.entity';
 import { RefreshTokenInput } from './dto/refresh-token.input';
 import { RegisterInput } from './dto/register.input';
 import { RegisterResponse } from './entities/register-response.entity';
+import {
+  RequestResetInput,
+  ResetPasswordInput,
+} from './dto/reset-password.input';
+import { ResetResponse } from './entities/reset-response.entity';
 
 @Resolver()
 export class AuthResolver {
@@ -29,6 +34,23 @@ export class AuthResolver {
   async refreshToken(
     @Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput,
   ) {
-    return this.authService.refreshToken(refreshTokenInput.refresh_token);
+    return this.authService.refreshToken(refreshTokenInput.refreshToken);
+  }
+
+  @Mutation(() => ResetResponse)
+  async resetPasswordSent(
+    @Args('requestResetInput') requestResetInput: RequestResetInput,
+  ) {
+    return this.authService.resetPasswordSent(requestResetInput.email);
+  }
+
+  @Mutation(() => LoginResponse)
+  async resetPasswordConfirm(
+    @Args('resetPasswordInput') resetPasswordInput: ResetPasswordInput,
+  ) {
+    return this.authService.resetPasswordConfirm(
+      resetPasswordInput.token,
+      resetPasswordInput.newPassword,
+    );
   }
 }

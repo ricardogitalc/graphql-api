@@ -17,6 +17,7 @@ export const CONFIG_MESSAGES = {
   userExists: 'Usuário já cadastrado.',
   userAllReady: 'Usuário já existe.',
   userNotFound: 'Usuário não encontrado.',
+  userIdNotFound: 'Nenhum usuário com este ID.',
   userNotVerified: 'Usuário não verificado.',
   userNoPermission: 'Acesso negado.',
 
@@ -40,6 +41,10 @@ export const CONFIG_MESSAGES = {
 
   // INTEGRATION ERROR
   googleLoginError: 'Erro no login Google.',
+
+  // RESET PASSWORD
+  resetPasswordReseted: 'Senha redefinida.',
+  resetPasswordLinkSent: 'Link de redefinição enviado.',
 } as const;
 
 export const JWT_TIMES = {

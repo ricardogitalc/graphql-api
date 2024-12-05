@@ -1,13 +1,11 @@
+// src/auth/types/reset-response.type.ts
 import { ObjectType, Field } from '@nestjs/graphql';
 
 @ObjectType()
-export class LoginResponse {
+export class ResetResponse {
   @Field()
   message: string;
 
   @Field()
-  accessToken: string;
-
-  @Field()
-  refreshToken: string;
+  resetToken: string;
 }

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginInput } from './dto/login.input';
 import * as bcrypt from 'bcrypt';
@@ -71,8 +75,8 @@ export class AuthService {
 
       return {
         message: CONFIG_MESSAGES.userLogged,
-        access_token: await this.generateJwtTokens(user),
-        refresh_token: await this.generateRefreshTokens(user),
+        accessToken: await this.generateJwtTokens(user),
+        refreshToken: await this.generateRefreshTokens(user),
       };
     } catch (error) {
       throw error; // O ErrorInterceptor tratará o erro
@@ -142,9 +146,9 @@ export class AuthService {
       });
 
       return {
-        message: CONFIG_MESSAGES.userLogged,
-        access_token: await this.generateJwtTokens(user),
-        refresh_token: await this.generateRefreshTokens(user),
+        message: CONFIG_MESSAGES.userVerified,
+        accessToken: await this.generateJwtTokens(user),
+        refreshToken: await this.generateRefreshTokens(user),
       };
     } catch (error) {
       throw new UnauthorizedException(CONFIG_MESSAGES.tokenInvalid);
@@ -167,9 +171,60 @@ export class AuthService {
 
       return {
         message: CONFIG_MESSAGES.tokenRefreshed,
-        access_token: await this.generateRefreshTokens(user),
+        accessToken: await this.generateRefreshTokens(user),
       };
     } catch {
+      throw new UnauthorizedException(CONFIG_MESSAGES.tokenInvalid);
+    }
+  }
+
+  async resetPasswordSent(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException(CONFIG_MESSAGES.userNotFound);
+    }
+
+    const resetToken = await this.generateJwtTokens({
+      id: user.id,
+      email: user.email,
+    });
+
+    // Enviar o token por email
+
+    return {
+      message: CONFIG_MESSAGES.resetPasswordLinkSent,
+      resetToken,
+    };
+  }
+
+  async resetPasswordConfirm(token: string, newPassword: string) {
+    try {
+      const secret = this.configService.get('JWT_SECRET_KEY');
+      const key = createHash('sha256').update(secret).digest();
+      const { payload } = await jose.jwtDecrypt(token, key);
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      await this.prisma.user.update({
+        where: { id: Number(payload.sub) },
+        data: { password: hashedPassword },
+      });
+
+      return {
+        message: CONFIG_MESSAGES.resetPasswordReseted,
+        accessToken: await this.generateJwtTokens({
+          id: payload.sub,
+          email: payload.email,
+        }),
+        refreshToken: await this.generateRefreshTokens({
+          id: payload.sub,
+          email: payload.email,
+        }),
+      };
+    } catch (error) {
       throw new UnauthorizedException(CONFIG_MESSAGES.tokenInvalid);
     }
   }

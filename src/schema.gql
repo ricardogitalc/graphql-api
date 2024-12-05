@@ -21,13 +21,18 @@ scalar DateTime
 
 type LoginResponse {
   message: String!
-  access_token: String!
-  refresh_token: String!
+  accessToken: String!
+  refreshToken: String!
 }
 
 type RegisterResponse {
   message: String!
   verificationToken: String!
+}
+
+type ResetResponse {
+  message: String!
+  resetToken: String!
 }
 
 type Query {
@@ -42,6 +47,8 @@ type Mutation {
   registerUser(registerInput: RegisterInput!): RegisterResponse!
   verifyUser(token: String!): LoginResponse!
   refreshToken(refreshTokenInput: RefreshTokenInput!): LoginResponse!
+  resetPasswordSent(requestResetInput: RequestResetInput!): ResetResponse!
+  resetPasswordConfirm(resetPasswordInput: ResetPasswordInput!): LoginResponse!
 }
 
 input UpdateUserInput {
@@ -66,5 +73,14 @@ input RegisterInput {
 }
 
 input RefreshTokenInput {
-  refresh_token: String!
+  refreshToken: String!
+}
+
+input RequestResetInput {
+  email: String!
+}
+
+input ResetPasswordInput {
+  token: String!
+  newPassword: String!
 }
