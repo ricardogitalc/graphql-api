@@ -8,6 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import * as jose from 'jose';
 import { createHash } from 'crypto';
+import { CONFIG_MESSAGES } from 'src/config/config';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -34,9 +35,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const authHeader = request.headers.authorization;
 
     if (!authHeader?.startsWith('Bearer ')) {
-      throw new UnauthorizedException(
-        'Token não fornecido ou formato inválido',
-      );
+      throw new UnauthorizedException(CONFIG_MESSAGES.tokenNotSent);
     }
 
     const token = authHeader.split(' ')[1];

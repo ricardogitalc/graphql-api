@@ -27,6 +27,7 @@ type LoginResponse {
 
 type RegisterResponse {
   message: String!
+  verificationToken: String!
 }
 
 type Query {
@@ -35,20 +36,12 @@ type Query {
 }
 
 type Mutation {
-  createUser(createUserInput: CreateUserInput!): User!
-  updateUser(updateUserInput: UpdateUserInput!): User!
-  deleteUser(id: Int!): User!
+  updateUserById(updateUserInput: UpdateUserInput!): User!
+  deleteUserById(id: Int!): User!
   loginUser(loginInput: LoginInput!): LoginResponse!
   registerUser(registerInput: RegisterInput!): RegisterResponse!
+  verifyUser(token: String!): LoginResponse!
   refreshToken(refreshTokenInput: RefreshTokenInput!): LoginResponse!
-}
-
-input CreateUserInput {
-  firstName: String!
-  lastName: String!
-  email: String!
-  password: String!
-  whatsapp: String!
 }
 
 input UpdateUserInput {

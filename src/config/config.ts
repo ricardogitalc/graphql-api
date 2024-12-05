@@ -1,7 +1,9 @@
 export const CONFIG_MESSAGES = {
   tokenRefreshed: 'Acesso renovado com sucesso.',
   tokenInvalid: 'Token inválido ou expirado.',
+  tokenNotSent: 'Token não fornecido.',
   invalidCredentials: 'Credenciais inválidas.',
+  invalidPassword: 'Senha incorreta.',
 
   // USER SUCCESS
   userCreated: 'Usuário criado.',
@@ -15,7 +17,7 @@ export const CONFIG_MESSAGES = {
   userExists: 'Usuário já cadastrado.',
   userAllReady: 'Usuário já existe.',
   userNotFound: 'Usuário não encontrado.',
-  userNotVerified: 'Email não verificado.',
+  userNotVerified: 'Usuário não verificado.',
   userNoPermission: 'Acesso negado.',
 
   // AUTH SUCCESS
@@ -29,7 +31,7 @@ export const CONFIG_MESSAGES = {
   invalidRefreshToken: 'Refresh token inválido.',
   accessLinkExpired: 'Link expirado.',
   unauthorized: 'Não autorizado.',
-  adminOnly: 'Acesso apenas para admin.',
+  adminOnly: 'Acesso negado ;)',
 
   // VALIDATION ERROR
   invalidData: 'Dados inválidos.',

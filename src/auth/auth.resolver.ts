@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { LoginResponse } from './entities/login-response.entity';
 import { RefreshTokenInput } from './dto/refresh-token.input';
-import { RegisterResponse } from './entities/login-response.entity copy';
 import { RegisterInput } from './dto/register.input';
+import { RegisterResponse } from './entities/register-response.entity';
 
 @Resolver()
 export class AuthResolver {
@@ -17,7 +17,12 @@ export class AuthResolver {
 
   @Mutation(() => RegisterResponse)
   async registerUser(@Args('registerInput') registerInput: RegisterInput) {
-    // logica de registro
+    return this.authService.register(registerInput);
+  }
+
+  @Mutation(() => LoginResponse)
+  async verifyUser(@Args('token') token: string) {
+    return this.authService.verifyUser(token);
   }
 
   @Mutation(() => LoginResponse)

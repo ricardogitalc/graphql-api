@@ -6,6 +6,7 @@ import { CONFIG_MESSAGES } from 'src/config/config';
 import { ConfigService } from '@nestjs/config';
 import * as jose from 'jose';
 import { createHash } from 'crypto';
+import { RegisterInput } from './dto/register.input';
 
 @Injectable()
 export class AuthService {
@@ -39,30 +40,115 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
-  }
-
-  async login(loginInput: LoginInput) {
-    const user = await this.validateUser(loginInput.email, loginInput.password);
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
 
     if (!user) {
       throw new UnauthorizedException(CONFIG_MESSAGES.userNotFound);
     }
 
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException(CONFIG_MESSAGES.invalidPassword);
+    }
+
+    if (!user.verified) {
+      throw new UnauthorizedException(CONFIG_MESSAGES.userNotVerified);
+    }
+
+    const { password: _, ...result } = user;
+    return result;
+  }
+
+  async login(loginInput: LoginInput) {
+    try {
+      const user = await this.validateUser(
+        loginInput.email,
+        loginInput.password,
+      );
+
+      return {
+        message: CONFIG_MESSAGES.userLogged,
+        access_token: await this.generateJwtTokens(user),
+        refresh_token: await this.generateRefreshTokens(user),
+      };
+    } catch (error) {
+      throw error; // O ErrorInterceptor tratará o erro
+    }
+  }
+
+  async register(registerInput: RegisterInput) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: registerInput.email },
+    });
+
+    if (existingUser && existingUser.verified) {
+      throw new UnauthorizedException(CONFIG_MESSAGES.userAllReady);
+    }
+
+    const hashedPassword = await bcrypt.hash(registerInput.password, 10);
+
+    if (existingUser && !existingUser.verified) {
+      const updatedUser = await this.prisma.user.update({
+        where: { email: registerInput.email },
+        data: {
+          ...registerInput,
+          password: hashedPassword,
+          verified: false,
+        },
+      });
+
+      const verificationToken = await this.generateJwtTokens({
+        id: updatedUser.id,
+        email: updatedUser.email,
+      });
+
+      return {
+        message: CONFIG_MESSAGES.userUpdated,
+        verificationToken,
+      };
+    }
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        ...registerInput,
+        password: hashedPassword,
+        verified: false,
+      },
+    });
+
+    const verificationToken = await this.generateJwtTokens({
+      id: newUser.id,
+      email: newUser.email,
+    });
+
     return {
-      message: CONFIG_MESSAGES.userLogged,
-      access_token: await this.generateJwtTokens(user),
-      refresh_token: await this.generateRefreshTokens(user),
+      message: CONFIG_MESSAGES.userCreated,
+      verificationToken,
     };
   }
 
-  async register() {
-    // logica de registro
+  async verifyUser(token: string) {
+    try {
+      const secret = this.configService.get('JWT_SECRET_KEY');
+      const key = createHash('sha256').update(secret).digest();
+      const { payload } = await jose.jwtDecrypt(token, key);
+
+      const user = await this.prisma.user.update({
+        where: { id: Number(payload.sub) },
+        data: { verified: true },
+      });
+
+      return {
+        message: CONFIG_MESSAGES.userLogged,
+        access_token: await this.generateJwtTokens(user),
+        refresh_token: await this.generateRefreshTokens(user),
+      };
+    } catch (error) {
+      throw new UnauthorizedException(CONFIG_MESSAGES.tokenInvalid);
+    }
   }
 
   async refreshToken(token: string) {
