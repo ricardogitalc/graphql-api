@@ -3,27 +3,30 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UseGuards, ValidationPipe } from '@nestjs/common';
-import { AdminGuard } from 'src/auth/guards/admin-auth.guard';
 import { UpdateUserInput } from './inputs/user.inputs';
+import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Query(() => [User])
-  @UseGuards(AdminGuard)
   getAllUsers() {
     return this.usersService.getAllUsers();
   }
 
-  @UseGuards(AdminGuard)
   @Query(() => User)
   getUserById(@Args('id', { type: () => Int }) id: number) {
     return this.usersService.getUserById(id);
   }
 
-  @UseGuards(AdminGuard)
   @Mutation(() => User)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async updateUserById(
     @Args('updateUserInput', new ValidationPipe())
     updateUserInput: UpdateUserInput,
@@ -38,9 +41,14 @@ export class UsersResolver {
     );
   }
 
-  @UseGuards(AdminGuard)
   @Mutation(() => User)
   deleteUserById(@Args('id', { type: () => Int }) id: number) {
     return this.usersService.deleteUserById(id);
+  }
+
+  @Query(() => User)
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@CurrentUser() user: { sub: number }) {
+    return this.usersService.getUserById(user.sub);
   }
 }

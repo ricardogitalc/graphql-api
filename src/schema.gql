@@ -2,26 +2,37 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  id: Int!
-  role: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  whatsapp: String
-  verified: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
 type LoginResponse {
-  message: String!
   accessToken: String!
+  message: String!
+  refreshToken: String!
+}
+
+type Mutation {
+  deleteUserById(id: Int!): User!
+  loginUser(loginUserInput: loginUserInput!): LoginResponse!
+  refreshToken(refreshToken: refreshTokenInput!): RefreshResponse!
+  registerUser(registerUserInput: registerUserInput!): RegisterResponse!
+  resetPwdConf(resetPwdConfInput: resetPwdConfInput!): LoginResponse!
+  resetPwdSent(resetPwdSentInput: resetPwdSentInput!): ResetResponse!
+  updateUserById(updateUserInput: UpdateUserInput!): User!
+  verifyUser(verificationToken: String!): LoginResponse!
+}
+
+type Query {
+  getAllUsers: [User!]!
+  getProfile: User!
+  getUserById(id: Int!): User!
+}
+
+type RefreshResponse {
+  accessToken: String!
+  message: String!
   refreshToken: String!
 }
 
@@ -30,38 +41,28 @@ type RegisterResponse {
   verificationToken: String!
 }
 
-type RefreshResponse {
-  message: String!
-  accessToken: String!
-  refreshToken: String!
-}
-
 type ResetResponse {
   message: String!
   resetToken: String!
 }
 
-type Query {
-  getAllUsers: [User!]!
-  getUserById(id: Int!): User!
-}
-
-type Mutation {
-  updateUserById(updateUserInput: UpdateUserInput!): User!
-  deleteUserById(id: Int!): User!
-  loginUser(loginUserInput: loginUserInput!): LoginResponse!
-  registerUser(registerUserInput: registerUserInput!): RegisterResponse!
-  verifyUser(verificationToken: String!): LoginResponse!
-  refreshToken(refreshToken: refreshTokenInput!): RefreshResponse!
-  resetPwdSent(resetPwdSentInput: resetPwdSentInput!): ResetResponse!
-  resetPwdConf(resetPwdConfInput: resetPwdConfInput!): LoginResponse!
-}
-
 input UpdateUserInput {
-  id: Int!
   firstName: String
+  id: Int!
   lastName: String
   password: String
+  whatsapp: String
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: Int!
+  lastName: String!
+  role: String!
+  updatedAt: DateTime!
+  verified: Boolean!
   whatsapp: String
 }
 
@@ -70,23 +71,23 @@ input loginUserInput {
   password: String!
 }
 
-input registerUserInput {
-  firstName: String!
-  lastName: String!
-  email: String!
-  password: String!
-  whatsapp: String!
-}
-
 input refreshTokenInput {
   refreshToken: String!
 }
 
-input resetPwdSentInput {
+input registerUserInput {
   email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+  whatsapp: String!
 }
 
 input resetPwdConfInput {
-  resetToken: String!
   newPassword: String!
+  resetToken: String!
+}
+
+input resetPwdSentInput {
+  email: String!
 }

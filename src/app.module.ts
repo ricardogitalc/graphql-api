@@ -6,8 +6,11 @@ import { UsersModule } from './users/users.module';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ErrorInterceptor } from './common/interceptors/error.interceptor';
+import { RolesGuard } from './common/guards/roles.guard';
+import { JwtAuthGuard } from './common/guards/jwt.guard';
+import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
 
 @Module({
   imports: [
@@ -16,11 +19,13 @@ import { ErrorInterceptor } from './common/interceptors/error.interceptor';
     }),
     GraphQLModule.forRoot({
       driver: ApolloDriver,
+      sortSchema: true,
+      // playground: true,
+      tracing: true,
+      debug: true,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       context: ({ req, res }) => ({ req, res }),
       formatError: (error) => {
-        const originalError = error.extensions?.originalError;
-
         return {
           message: error.message,
           code: error.extensions?.code || 'INTERNAL_SERVER_ERROR',
@@ -35,8 +40,20 @@ import { ErrorInterceptor } from './common/interceptors/error.interceptor';
   providers: [
     PrismaService,
     {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
       provide: APP_INTERCEPTOR,
       useClass: ErrorInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerInterceptor,
     },
   ],
 })

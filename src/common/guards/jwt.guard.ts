@@ -9,15 +9,22 @@ import { ConfigService } from '@nestjs/config';
 import * as jose from 'jose';
 import { createHash } from 'crypto';
 import { CONFIG_MESSAGES } from 'src/config/config';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private reflector: Reflector,
+  ) {
     super();
   }
 
   getRequest(context: ExecutionContext) {
-    return GqlExecutionContext.create(context).getContext().req;
+    const ctx = GqlExecutionContext.create(context);
+    const request = ctx.getContext().req;
+    return request;
   }
 
   protected async validateToken(token: string) {
@@ -31,6 +38,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true;
+    }
+
     const request = this.getRequest(context);
     const authHeader = request.headers.authorization;
 
@@ -40,7 +56,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const token = authHeader.split(' ')[1];
     const { payload } = await this.validateToken(token);
-    request.user = payload;
+
+    request.user = {
+      sub: payload.sub,
+      email: payload.email,
+    };
 
     return true;
   }

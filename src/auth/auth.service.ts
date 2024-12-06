@@ -170,7 +170,7 @@ export class AuthService {
 
       return {
         message: CONFIG_MESSAGES.tokenRefreshed,
-        accessToken: await this.generateRefreshTokens(user),
+        accessToken: await this.generateJwtTokens(user),
       };
     } catch {
       throw new UnauthorizedException(CONFIG_MESSAGES.tokenInvalid);

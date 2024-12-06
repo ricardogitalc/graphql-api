@@ -13,16 +13,19 @@ import {
   RegisterResponse,
   ResetResponse,
 } from './responses/auth.responses';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Mutation(() => LoginResponse)
   async loginUser(@Args('loginUserInput') loginUserInput: loginUserInput) {
     return this.authService.login(loginUserInput);
   }
 
+  @Public()
   @Mutation(() => RegisterResponse)
   async registerUser(
     @Args('registerUserInput') registerUserInput: registerUserInput,
@@ -30,16 +33,19 @@ export class AuthResolver {
     return this.authService.register(registerUserInput);
   }
 
+  @Public()
   @Mutation(() => LoginResponse)
   async verifyUser(@Args('verificationToken') verificationToken: string) {
     return this.authService.verifyUser(verificationToken);
   }
 
+  @Public()
   @Mutation(() => RefreshResponse)
   async refreshToken(@Args('refreshToken') refreshToken: refreshTokenInput) {
     return this.authService.refreshToken(refreshToken.refreshToken);
   }
 
+  @Public()
   @Mutation(() => ResetResponse)
   async resetPwdSent(
     @Args('resetPwdSentInput') resetPwdSentInput: resetPwdSentInput,
@@ -47,6 +53,7 @@ export class AuthResolver {
     return this.authService.resetPwdSent(resetPwdSentInput.email);
   }
 
+  @Public()
   @Mutation(() => LoginResponse)
   async resetPwdConf(
     @Args('resetPwdConfInput') resetPwdConfInput: resetPwdConfInput,

@@ -1,3 +1,5 @@
+import { access } from 'fs';
+
 export const CONFIG_MESSAGES = {
   tokenRefreshed: 'Acesso renovado com sucesso.',
   tokenInvalid: 'Token inválido ou expirado.',
@@ -32,7 +34,7 @@ export const CONFIG_MESSAGES = {
   invalidRefreshToken: 'Refresh token inválido.',
   accessLinkExpired: 'Link expirado.',
   unauthorized: 'Não autorizado.',
-  adminOnly: 'Acesso negado ;)',
+  accessDenied: 'Acesso negado.',
 
   // VALIDATION ERROR
   invalidData: 'Dados inválidos.',
