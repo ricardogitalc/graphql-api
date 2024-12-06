@@ -32,7 +32,7 @@ export class RolesGuard implements CanActivate {
     const { user } = gqlContext.getContext().req;
 
     if (!user) {
-      return false;
+      throw new UnauthorizedException(CONFIG_MESSAGES.tokenNotSent);
     }
 
     const dbUser = await this.prisma.user.findUnique({
@@ -41,7 +41,7 @@ export class RolesGuard implements CanActivate {
     });
 
     if (!dbUser) {
-      return false;
+      throw new UnauthorizedException(CONFIG_MESSAGES.userNotFound);
     }
 
     const hasRole = requiredRoles.includes(dbUser.role);

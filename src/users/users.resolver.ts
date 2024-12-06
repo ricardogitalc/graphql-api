@@ -2,13 +2,11 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { Ip, UseGuards, ValidationPipe } from '@nestjs/common';
-import { UpdateUserInput } from './inputs/user.inputs';
-import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
+import { UpdateUserInput, UpdateProfileInput } from './inputs/user.inputs';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { ValidationPipe } from '@nestjs/common';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -17,6 +15,24 @@ export class UsersResolver {
   @Query(() => User)
   async getProfile(@CurrentUser() user: { sub: number }) {
     return this.usersService.getUserById(user.sub);
+  }
+
+  @Mutation(() => User)
+  async updateProfile(
+    @CurrentUser() user: { sub: number },
+    @Args('updateProfileInput', new ValidationPipe())
+    UpdateProfileInput: UpdateProfileInput,
+  ) {
+    if (UpdateProfileInput.password) {
+      const hashedPassword = await bcrypt.hash(UpdateProfileInput.password, 10);
+      UpdateProfileInput.password = hashedPassword;
+    }
+    return this.usersService.updateUserById(user.sub, UpdateProfileInput);
+  }
+
+  @Mutation(() => User)
+  async deleteProfile(@CurrentUser() user: { sub: number }) {
+    return this.usersService.deleteUserById(user.sub);
   }
 
   @Query(() => [User])

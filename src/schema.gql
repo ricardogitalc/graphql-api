@@ -15,12 +15,14 @@ type LoginResponse {
 }
 
 type Mutation {
+  deleteProfile: User!
   deleteUserById(id: Int!): User!
   loginUser(loginUserInput: loginUserInput!): LoginResponse!
   refreshToken(refreshToken: refreshTokenInput!): RefreshResponse!
   registerUser(registerUserInput: registerUserInput!): RegisterResponse!
   resetPwdConf(resetPwdConfInput: resetPwdConfInput!): LoginResponse!
   resetPwdSent(resetPwdSentInput: resetPwdSentInput!): ResetResponse!
+  updateProfile(updateProfileInput: UpdateProfileInput!): User!
   updateUserById(updateUserInput: UpdateUserInput!): User!
   verifyUser(verificationToken: String!): LoginResponse!
 }
@@ -45,6 +47,13 @@ type RegisterResponse {
 type ResetResponse {
   message: String!
   resetToken: String!
+}
+
+input UpdateProfileInput {
+  firstName: String
+  lastName: String
+  password: String
+  whatsapp: String
 }
 
 input UpdateUserInput {
