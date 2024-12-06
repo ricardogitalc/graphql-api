@@ -42,7 +42,7 @@ export const CONFIG_MESSAGES = {
   googleLoginError: 'Erro no login Google.',
 
   // RESET PASSWORD
-  resetPasswordReseted: 'Senha redefinida.',
+  resetPasswordReseted: 'Senha redefinida com sucesso.',
   resetPasswordLinkSent: 'Link de redefinição enviado.',
 } as const;
 

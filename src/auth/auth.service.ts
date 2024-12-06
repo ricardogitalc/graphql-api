@@ -215,14 +215,6 @@ export class AuthService {
 
       return {
         message: CONFIG_MESSAGES.resetPasswordReseted,
-        accessToken: await this.generateJwtTokens({
-          id: payload.sub,
-          email: payload.email,
-        }),
-        refreshToken: await this.generateRefreshTokens({
-          id: payload.sub,
-          email: payload.email,
-        }),
       };
     } catch (error) {
       throw new UnauthorizedException(CONFIG_MESSAGES.tokenInvalid);
