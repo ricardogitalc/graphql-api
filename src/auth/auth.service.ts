@@ -65,7 +65,7 @@ export class AuthService {
     return result;
   }
 
-  async login(loginUserInput: loginUserInput, ip?: string) {
+  async login(loginUserInput: loginUserInput) {
     try {
       const user = await this.validateUser(
         loginUserInput.email,
@@ -76,7 +76,6 @@ export class AuthService {
         message: CONFIG_MESSAGES.userLogged,
         accessToken: await this.generateJwtTokens(user),
         refreshToken: await this.generateRefreshTokens(user),
-        ip,
       };
     } catch (error) {
       throw error;

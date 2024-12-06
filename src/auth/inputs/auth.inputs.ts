@@ -17,9 +17,6 @@ export class loginUserInput {
   @IsString()
   password: string;
 
-  @Field({ nullable: true })
-  @IsOptional()
-  ip?: string;
 }
 
 @InputType()

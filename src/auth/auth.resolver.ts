@@ -14,7 +14,6 @@ import {
   ResetResponse,
 } from './responses/auth.responses';
 import { Public } from 'src/common/decorators/public.decorator';
-import { Ip } from 'src/common/decorators/ip.decorator';
 
 @Resolver()
 export class AuthResolver {
@@ -24,9 +23,8 @@ export class AuthResolver {
   @Mutation(() => LoginResponse)
   async loginUser(
     @Args('loginUserInput') loginUserInput: loginUserInput,
-    @Ip() ip: string,
   ) {
-    return this.authService.login(loginUserInput, ip);
+    return this.authService.login(loginUserInput);
   }
 
   @Public()
