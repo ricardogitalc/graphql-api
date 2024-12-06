@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { CONFIG_MESSAGES } from 'src/config/config';
+import { CONFIG_MESSAGES, JWT_TIMES } from 'src/config/config';
 import { ConfigService } from '@nestjs/config';
 import * as jose from 'jose';
 import { createHash } from 'crypto';
@@ -26,7 +26,7 @@ export class AuthService {
       email: user.email,
     })
       .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
-      .setExpirationTime('30m')
+      .setExpirationTime(JWT_TIMES.ACCESS_TOKEN)
       .encrypt(key);
   }
 
@@ -38,7 +38,7 @@ export class AuthService {
       email: user.email,
     })
       .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
-      .setExpirationTime('1d')
+      .setExpirationTime(JWT_TIMES.REFRESH_TOKEN)
       .encrypt(key);
   }
 
@@ -65,7 +65,7 @@ export class AuthService {
     return result;
   }
 
-  async login(loginUserInput: loginUserInput) {
+  async login(loginUserInput: loginUserInput, ip?: string) {
     try {
       const user = await this.validateUser(
         loginUserInput.email,
@@ -76,9 +76,10 @@ export class AuthService {
         message: CONFIG_MESSAGES.userLogged,
         accessToken: await this.generateJwtTokens(user),
         refreshToken: await this.generateRefreshTokens(user),
+        ip,
       };
     } catch (error) {
-      throw error; // O ErrorInterceptor tratará o erro
+      throw error;
     }
   }
 

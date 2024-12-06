@@ -1,5 +1,3 @@
-import { access } from 'fs';
-
 export const CONFIG_MESSAGES = {
   tokenRefreshed: 'Acesso renovado com sucesso.',
   tokenInvalid: 'Token inválido ou expirado.',
@@ -21,7 +19,7 @@ export const CONFIG_MESSAGES = {
   userNotFound: 'Usuário não encontrado.',
   userIdNotFound: 'Nenhum usuário com este ID.',
   userNotVerified: 'Usuário não verificado.',
-  userNoPermission: 'Acesso negado.',
+  userNoPermission: 'Usuário sem permissão.',
 
   // AUTH SUCCESS
   loginLinkSent: 'Link de acesso enviado.',
@@ -34,7 +32,6 @@ export const CONFIG_MESSAGES = {
   invalidRefreshToken: 'Refresh token inválido.',
   accessLinkExpired: 'Link expirado.',
   unauthorized: 'Não autorizado.',
-  accessDenied: 'Acesso negado.',
 
   // VALIDATION ERROR
   invalidData: 'Dados inválidos.',
@@ -50,7 +47,6 @@ export const CONFIG_MESSAGES = {
 } as const;
 
 export const JWT_TIMES = {
-  REGISTER_TOKEN: '30m',
   ACCESS_TOKEN: '30m',
   REFRESH_TOKEN: '1d',
 } as const;

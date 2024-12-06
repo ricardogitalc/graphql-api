@@ -47,7 +47,7 @@ export class RolesGuard implements CanActivate {
     const hasRole = requiredRoles.includes(dbUser.role);
 
     if (!hasRole) {
-      throw new UnauthorizedException(CONFIG_MESSAGES.accessDenied);
+      throw new UnauthorizedException(CONFIG_MESSAGES.userNoPermission);
     }
 
     return hasRole;

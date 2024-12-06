@@ -10,6 +10,9 @@ export class LoginResponse {
 
   @Field()
   refreshToken: string;
+
+  @Field()
+  ip: string;
 }
 
 @ObjectType()

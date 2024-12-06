@@ -4,16 +4,75 @@ import {
   ExecutionContext,
   CallHandler,
   HttpException,
+  BadRequestException,
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable, catchError, throwError } from 'rxjs';
 import { GraphQLError } from 'graphql';
+
+interface ValidationError {
+  message: string[];
+  error: string;
+  statusCode: number;
+}
 
 @Injectable()
 export class ErrorInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((error) => {
+        if (error instanceof BadRequestException) {
+          const validationErrors = error.getResponse() as
+            | ValidationError
+            | string;
+
+          if (
+            typeof validationErrors === 'object' &&
+            Array.isArray(validationErrors.message)
+          ) {
+            const path = GqlExecutionContext.create(context).getInfo().path.key;
+
+            const inputMapping = {
+              loginUser: 'Login',
+              registerUser: 'Registro',
+              resetPwdSent: 'Redefinição de senha',
+              resetPwdConf: 'Confirmação de nova senha',
+
+              createUser: 'Criação de usuário',
+              updateUser: 'Atualização de usuário',
+            };
+
+            const operationName = inputMapping[path] || 'Validação';
+
+            return throwError(
+              () =>
+                new GraphQLError(`Erro de ${operationName}`, {
+                  extensions: {
+                    code: 'VALIDATION_ERROR',
+                    operation: path,
+                    validationErrors: validationErrors.message.map((error) => ({
+                      message: error,
+                      field:
+                        error.toLowerCase().includes('nome') &&
+                        error.toLowerCase().includes('sobrenome')
+                          ? 'lastName'
+                          : error.toLowerCase().includes('nome')
+                            ? 'firstName'
+                            : error.toLowerCase().includes('email')
+                              ? 'email'
+                              : error.toLowerCase().includes('senha')
+                                ? 'password'
+                                : error.toLowerCase().includes('whatsapp')
+                                  ? 'whatsapp'
+                                  : 'unknown',
+                    })),
+                    timestamp: new Date().toISOString(),
+                  },
+                }),
+            );
+          }
+        }
+
         if (error instanceof HttpException) {
           return throwError(
             () =>
@@ -27,7 +86,6 @@ export class ErrorInterceptor implements NestInterceptor {
           );
         }
 
-        // Para erros do Prisma
         if (error.code) {
           switch (error.code) {
             case 'P2002':

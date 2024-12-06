@@ -28,9 +28,14 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
       formatError: (error) => {
         return {
           message: error.message,
-          code: error.extensions?.code || 'INTERNAL_SERVER_ERROR',
+          code: error.extensions?.code,
+          validationErrors: error.extensions?.validationErrors,
           path: error.path,
           timestamp: new Date().toISOString(),
+          // Campos adicionais úteis
+          method: error.extensions?.request?.method,
+          originalError: error.originalError?.message,
+          contexts: error.extensions?.contexts,
         };
       },
     }),

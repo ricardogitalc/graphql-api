@@ -9,6 +9,7 @@ scalar DateTime
 
 type LoginResponse {
   accessToken: String!
+  ip: String!
   message: String!
   refreshToken: String!
 }
@@ -68,6 +69,7 @@ type User {
 
 input loginUserInput {
   email: String!
+  ip: String
   password: String!
 }
 
